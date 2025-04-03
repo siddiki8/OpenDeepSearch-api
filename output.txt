@@ -1,0 +1,347 @@
+Workspace root: /home/siddiki/Development/OpenDeepSearch-api
+Adding src path: /home/siddiki/Development/OpenDeepSearch-api/src
+Current sys.path includes: True
+Loaded environment variables from .env (if present).
+Importing OpenDeepSearch components...
+Imports successful.
+LLM Configs: Planner=openrouter/google/gemini-2.0-flash-thinking-exp-1219:free, Summarizer=openrouter/google/gemini-2.0-flash-exp:free, Writer=openrouter/google/gemini-2.5-pro-exp-03-25:free
+Instantiating Reranker and Chunker...
+Reranker and Chunker instantiated.
+Instantiating DeepResearchAgent...
+DeepResearchAgent initialized.
+- Planner LLM: {'model': 'openrouter/google/gemini-2.0-flash-thinking-exp-1219:free'}
+- Summarizer LLM: {'model': 'openrouter/google/gemini-2.0-flash-exp:free'}
+- Writer LLM: {'model': 'openrouter/google/gemini-2.5-pro-exp-03-25:free'}
+- Reranker: JinaReranker
+- Chunker: Chunker
+- Scraper Strategies: ['no_extraction']
+- Workflow Params: top_m=3, next_k=4, top_n=15, max_iterations=2
+DeepResearchAgent instantiated.
+User query: "Analyze the impact of quantum computing on cybersecurity threats"
+
+--- STARTING DEEP RESEARCH ---
+
+--- Starting Deep Research for query: 'Analyze the impact of quantum computing on cybersecurity threats' ---
+
+[Step 1/8] Calling Planner LLM...
+Planner LLM call complete.
+- Planned Search Tasks (3): [
+  {
+    "query": "quantum computing cybersecurity threats",
+    "endpoint": "/search",
+    "num_results": 10,
+    "reasoning": "This is a broad search to understand the general landscape of threats posed by quantum computing to cybersecurity. It will provide an overview of the main concerns and areas of impact."
+  },
+  {
+    "query": "quantum computing algorithms breaking encryption",
+    "endpoint": "/search",
+    "num_results": 10,
+    "reasoning": "This query focuses on the specific mechanisms by which quantum computers could break current encryption methods, like Shor's algorithm and its impact on RSA and other public-key cryptosystems. It aims to find concrete examples of vulnerabilities."
+  },
+  {
+    "query": "post-quantum cryptography standards NIST",
+    "endpoint": "/search",
+    "num_results": 10,
+    "reasoning": "This search targets the solutions and mitigations being developed, specifically post-quantum cryptography (PQC) standards and the role of NIST (National Institute of Standards and Technology) in this process. This will help understand the countermeasures and future outlook."
+  }
+]
+- Writing Plan: {
+  "overall_goal": "Provide a comprehensive analysis of the impact of quantum computing on cybersecurity threats, explaining the nature of these threats, their potential consequences, and the ongoing efforts to mitigate them, suitable for an informed general audience interested in technology and security.",
+  "desired_tone": "Objective and analytical",
+  "sections": [
+    {
+      "title": "Introduction to Quantum Computing and Cybersecurity",
+      "guidance": "Begin by briefly defining quantum computing and its potential. Then, introduce the fundamental concepts of cybersecurity and the importance of encryption in current digital security infrastructure. Explain why the intersection of these two fields is becoming increasingly critical."
+    },
+    {
+      "title": "Current Cybersecurity Landscape and its Vulnerabilities",
+      "guidance": "Describe the existing cybersecurity threats in the classical computing era. Focus on current encryption methods (like RSA, AES, ECC) and their limitations when faced with classical computing attacks. Set the stage for understanding why quantum computing poses a paradigm shift in threats."
+    },
+    {
+      "title": "Quantum Computing's Threat to Modern Encryption",
+      "guidance": "Detail how quantum computers, leveraging algorithms like Shor's algorithm, can break widely used encryption methods that are currently considered secure against classical computers. Explain the timescale of this threat \u2013 is it immediate or long-term? Discuss specific cryptographic systems at risk (e.g., RSA, ECC, Diffie-Hellman) and the potential impact on data confidentiality and integrity."
+    },
+    {
+      "title": "Mitigation Strategies: Post-Quantum Cryptography",
+      "guidance": "Explore the solutions being developed to counter quantum computing threats. Focus on Post-Quantum Cryptography (PQC). Explain what PQC is, the different types of PQC algorithms (lattice-based, code-based, etc.), and the standardization efforts by organizations like NIST. Discuss the challenges and progress in transitioning to PQC."
+    },
+    {
+      "title": "Future Outlook and Recommendations",
+      "guidance": "Discuss the anticipated timeline for quantum computers becoming a significant cybersecurity threat.  Consider the broader implications for industries and governments. Offer recommendations for individuals and organizations to prepare for the quantum computing era in cybersecurity, including staying informed, adopting PQC standards, and investing in research and development."
+    },
+    {
+      "title": "Conclusion",
+      "guidance": "Summarize the key findings of the report, reiterating the significant impact quantum computing will have on cybersecurity. Emphasize the urgency and importance of proactive measures to mitigate these emerging threats and ensure a secure digital future."
+    }
+  ],
+  "additional_directives": [
+    "Cite all sources appropriately using a consistent citation style (e.g., APA or MLA).",
+    "Explain complex technical terms clearly and concisely for a general audience, avoiding excessive jargon.",
+    "Maintain a balanced perspective by presenting both the threats and the ongoing efforts to develop solutions.",
+    "Include a brief glossary of key terms if necessary to enhance readability for a broader audience."
+  ]
+}
+
+[Step 2/8] Executing initial Serper searches...
+Initial Serper searches complete. Received results for 3 tasks.
+
+[Step 3/8] Processing sources and reranking...
+Consolidated 29 unique sources from search results.
+Reranking 29 sources using Jina Rerank API via utility...
+Reranking complete. Source scores range from 0.8032 to 0.0331 (higher is better).
+Selected Top 3 sources for full text processing.
+  M1: What Is Quantum Computing's Threat to Cybersecurity? - Palo Alto ... (https://www.paloaltonetworks.com/cyberpedia/what-is-quantum-computings-threat-to-cybersecurity)
+  M2: Quantum computing cybersecurity risk: PwC (https://www.pwc.com/us/en/services/consulting/cybersecurity-risk-regulatory/library/quantum-computing-cybersecurity-risk.html)
+  M3: What is the cyber security risk from quantum computing? (https://kpmg.com/au/en/home/insights/2024/04/cyber-security-risk-from-quantum-computing.html)
+Selected Next 4 sources for chunk processing.
+  K1: How tech firms are tackling the risks of quantum computing (https://www.weforum.org/stories/2024/04/quantum-computing-cybersecurity-risks/)
+  K2: Is Quantum Computing a Cybersecurity Threat? | American Scientist (https://www.americanscientist.org/article/is-quantum-computing-a-cybersecurity-threat)
+  K3: Quantum Computing is a Long-Term Cybersecurity Risk, But ... (https://thequantuminsider.com/2025/02/01/quantum-computing-is-a-long-term-cybersecurity-risk-but-deserves-immediate-attention-analysts-report/)
+  K4: Quantum Computing Cybersecurity Explained - NordPass (https://nordpass.com/blog/quantum-computing-cybersecurity/)
+
+[Step 4/8] Fetching and extracting content for 7 sources...
+  [4.1/7] Processing source: What Is Quantum Computing's Threat to Cybersecurity? - Palo Alto ... (https://www.paloaltonetworks.com/cyberpedia/what-is-quantum-computings-threat-to-cybersecurity)
+[INIT].... → Crawl4AI 0.5.0.post4
+[FETCH]... ↓ https://www.paloaltonetworks.com/cyberpedia/what-i... | Status: True | Time: 0.82s
+[SCRAPE].. ◆ https://www.paloaltonetworks.com/cyberpedia/what-i... | Time: 0.164s
+[COMPLETE] ● https://www.paloaltonetworks.com/cyberpedia/what-i... | Status: True | Total: 0.99s
+
+Debug: Attempting extraction with strategy: no_extraction
+Debug: URL: https://www.paloaltonetworks.com/cyberpedia/what-is-quantum-computings-threat-to-cybersecurity
+    Successfully extracted content using strategy: no_extraction
+    Source is Top M. Storing full content (60579 chars).
+  [4.2/7] Processing source: Quantum computing cybersecurity risk: PwC (https://www.pwc.com/us/en/services/consulting/cybersecurity-risk-regulatory/library/quantum-computing-cybersecurity-risk.html)
+[INIT].... → Crawl4AI 0.5.0.post4
+[FETCH]... ↓ https://www.pwc.com/us/en/services/consulting/cybe... | Status: True | Time: 1.20s
+[SCRAPE].. ◆ https://www.pwc.com/us/en/services/consulting/cybe... | Time: 0.176s
+[COMPLETE] ● https://www.pwc.com/us/en/services/consulting/cybe... | Status: True | Total: 1.44s
+
+Debug: Attempting extraction with strategy: no_extraction
+Debug: URL: https://www.pwc.com/us/en/services/consulting/cybersecurity-risk-regulatory/library/quantum-computing-cybersecurity-risk.html
+    Successfully extracted content using strategy: no_extraction
+    Source is Top M. Storing full content (66054 chars).
+  [4.3/7] Processing source: What is the cyber security risk from quantum computing? (https://kpmg.com/au/en/home/insights/2024/04/cyber-security-risk-from-quantum-computing.html)
+[INIT].... → Crawl4AI 0.5.0.post4
+[FETCH]... ↓ https://kpmg.com/au/en/home/insights/2024/04/cyber... | Status: True | Time: 1.47s
+[SCRAPE].. ◆ https://kpmg.com/au/en/home/insights/2024/04/cyber... | Time: 0.106s
+[COMPLETE] ● https://kpmg.com/au/en/home/insights/2024/04/cyber... | Status: True | Total: 1.58s
+
+Debug: Attempting extraction with strategy: no_extraction
+Debug: URL: https://kpmg.com/au/en/home/insights/2024/04/cyber-security-risk-from-quantum-computing.html
+    Successfully extracted content using strategy: no_extraction
+    Source is Top M. Storing full content (62246 chars).
+  [4.4/7] Processing source: How tech firms are tackling the risks of quantum computing (https://www.weforum.org/stories/2024/04/quantum-computing-cybersecurity-risks/)
+[INIT].... → Crawl4AI 0.5.0.post4
+[FETCH]... ↓ https://www.weforum.org/stories/2024/04/quantum-co... | Status: True | Time: 4.55s
+[SCRAPE].. ◆ https://www.weforum.org/stories/2024/04/quantum-co... | Time: 0.293s
+[COMPLETE] ● https://www.weforum.org/stories/2024/04/quantum-co... | Status: True | Total: 4.84s
+
+Debug: Attempting extraction with strategy: no_extraction
+Debug: URL: https://www.weforum.org/stories/2024/04/quantum-computing-cybersecurity-risks/
+    Successfully extracted content using strategy: no_extraction
+    Source is Next K. Chunking content (367996 chars)...
+    Generated 1 chunks. Reranking chunks against query...
+    Selected Top 1 chunks (367996 chars). Storing combined content.
+  [4.5/7] Processing source: Is Quantum Computing a Cybersecurity Threat? | American Scientist (https://www.americanscientist.org/article/is-quantum-computing-a-cybersecurity-threat)
+[INIT].... → Crawl4AI 0.5.0.post4
+[FETCH]... ↓ https://www.americanscientist.org/article/is-quant... | Status: True | Time: 3.43s
+[SCRAPE].. ◆ https://www.americanscientist.org/article/is-quant... | Time: 0.046s
+[COMPLETE] ● https://www.americanscientist.org/article/is-quant... | Status: True | Total: 3.48s
+
+Debug: Attempting extraction with strategy: no_extraction
+Debug: URL: https://www.americanscientist.org/article/is-quantum-computing-a-cybersecurity-threat
+    Successfully extracted content using strategy: no_extraction
+    Source is Next K. Chunking content (25598 chars)...
+    Generated 1 chunks. Reranking chunks against query...
+    Selected Top 1 chunks (25598 chars). Storing combined content.
+  [4.6/7] Processing source: Quantum Computing is a Long-Term Cybersecurity Risk, But ... (https://thequantuminsider.com/2025/02/01/quantum-computing-is-a-long-term-cybersecurity-risk-but-deserves-immediate-attention-analysts-report/)
+[INIT].... → Crawl4AI 0.5.0.post4
+[FETCH]... ↓ https://thequantuminsider.com/2025/02/01/quantum-c... | Status: True | Time: 2.84s
+[SCRAPE].. ◆ https://thequantuminsider.com/2025/02/01/quantum-c... | Time: 0.365s
+[COMPLETE] ● https://thequantuminsider.com/2025/02/01/quantum-c... | Status: True | Total: 3.21s
+
+Debug: Attempting extraction with strategy: no_extraction
+Debug: URL: https://thequantuminsider.com/2025/02/01/quantum-computing-is-a-long-term-cybersecurity-risk-but-deserves-immediate-attention-analysts-report/
+    Successfully extracted content using strategy: no_extraction
+    Source is Next K. Chunking content (127856 chars)...
+    Generated 1 chunks. Reranking chunks against query...
+    Selected Top 1 chunks (127856 chars). Storing combined content.
+  [4.7/7] Processing source: Quantum Computing Cybersecurity Explained - NordPass (https://nordpass.com/blog/quantum-computing-cybersecurity/)
+[INIT].... → Crawl4AI 0.5.0.post4
+[FETCH]... ↓ https://nordpass.com/blog/quantum-computing-cybers... | Status: True | Time: 1.22s
+[SCRAPE].. ◆ https://nordpass.com/blog/quantum-computing-cybers... | Time: 0.057s
+[COMPLETE] ● https://nordpass.com/blog/quantum-computing-cybers... | Status: True | Total: 1.27s
+
+Debug: Attempting extraction with strategy: no_extraction
+Debug: URL: https://nordpass.com/blog/quantum-computing-cybersecurity/
+    Successfully extracted content using strategy: no_extraction
+    Source is Next K. Chunking content (47493 chars)...
+    Generated 1 chunks. Reranking chunks against query...
+    Selected Top 1 chunks (47493 chars). Storing combined content.
+Content fetching and extraction complete. Successfully processed content for 7 sources.
+
+[Step 5/8] Summarizing extracted content...
+  [5.1/7] Summarizing: What Is Quantum Computing's Threat to Cybersecurity? - Palo Alto ...
+    Summary generated (1862 chars).
+  [5.2/7] Summarizing: Quantum computing cybersecurity risk: PwC
+    Summary generated (1379 chars).
+  [5.3/7] Summarizing: What is the cyber security risk from quantum computing?
+    Summary generated (2991 chars).
+  [5.4/7] Summarizing: How tech firms are tackling the risks of quantum computing
+    Summary generated (652 chars).
+  [5.5/7] Summarizing: Is Quantum Computing a Cybersecurity Threat? | American Scientist
+    Summary generated (1451 chars).
+  [5.6/7] Summarizing: Quantum Computing is a Long-Term Cybersecurity Risk, But ...
+    Summary generated (1192 chars).
+  [5.7/7] Summarizing: Quantum Computing Cybersecurity Explained - NordPass
+    Summary generated (2224 chars).
+Summarization complete. Generated 7 summaries.
+
+[Step 6/8] Generating initial report...
+Approximate characters in Writer LLM input: 18020
+Initial report generated (26466 chars).
+
+[Step 7/8] Starting refinement loop...
+-- Refinement Iteration 1/2 --
+Writer requested more info on topic: 'Specific types and brief descriptions of PQC algorithm families (e.g., lattice-based, code-based, hash-based, multivariate)'
+  [7a] Planning refinement search...
+  Planned refinement tasks: [{'query': 'Specific types and brief descriptions of PQC algorithm families (e.g., lattice-based, code-based, hash-based, multivariate)', 'endpoint': '/search', 'num_results': 5}]
+  [7b] Executing refinement search...
+  Refinement search complete. Received results for 1 tasks.
+  [7c] Processing refinement sources...
+  Selected 3 unique sources for refinement processing.
+  [7d] Fetching, extracting, and summarizing refinement content...
+    [7d.1] Processing refinement source: Post-quantum cryptography - Wikipedia (https://en.wikipedia.org/wiki/Post-quantum_cryptography)
+      Successfully extracted refinement content using strategy: no_extraction
+      Fetched content (27059 chars). Summarizing...
+      Summary generated (2255 chars).
+    [7d.2] Processing refinement source: What is Post Quantum Cryptography Encryption? (https://internationalsecurityjournal.com/post-quantum-cryptography/)
+[INIT].... → Crawl4AI 0.5.0.post4
+[ERROR]... × https://internationalsecurityjournal.com/post-quan... | Error: 
+┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ × Unexpected error in _crawl_web at line 579 in _crawl_web (.venv/lib/python3.12/site-                                │
+│ packages/crawl4ai/async_crawler_strategy.py):                                                                         │
+│   Error: Failed on navigating ACS-GOTO:                                                                               │
+│   Page.goto: Timeout 60000ms exceeded.                                                                                │
+│   Call log:                                                                                                           │
+│   - navigating to "https://internationalsecurityjournal.com/post-quantum-cryptography/", waiting until                │
+│ "domcontentloaded"                                                                                                    │
+│                                                                                                                       │
+│                                                                                                                       │
+│   Code context:                                                                                                       │
+│   574                       response = await page.goto(                                                               │
+│   575                           url, wait_until=config.wait_until, timeout=config.page_timeout                        │
+│   576                       )                                                                                         │
+│   577                       redirected_url = page.url                                                                 │
+│   578                   except Error as e:                                                                            │
+│   579 →                     raise RuntimeError(f"Failed on navigating ACS-GOTO:\n{str(e)}")                           │
+│   580                                                                                                                 │
+│   581                   await self.execute_hook(                                                                      │
+│   582                       "after_goto", page, context=context, url=url, response=response, config=config            │
+│   583                   )                                                                                             │
+│   584                                                                                                                 │
+└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+Debug: Failed to fetch raw HTML for https://internationalsecurityjournal.com/post-quantum-cryptography/. Error: Unknown
+      Failed to fetch/extract refinement content for: https://internationalsecurityjournal.com/post-quantum-cryptography/
+    [7d.3] Processing refinement source: PQC- Lattices, Codes, and Hashes - Medium (https://medium.com/@aditi.rupade/pqc-lattices-codes-and-hashes-1d0a7965c4ae)
+[INIT].... → Crawl4AI 0.5.0.post4
+[FETCH]... ↓ https://medium.com/@aditi.rupade/pqc-lattices-code... | Status: True | Time: 2.94s
+[SCRAPE].. ◆ https://medium.com/@aditi.rupade/pqc-lattices-code... | Time: 0.047s
+[COMPLETE] ● https://medium.com/@aditi.rupade/pqc-lattices-code... | Status: True | Total: 2.99s
+
+Debug: Attempting extraction with strategy: no_extraction
+Debug: URL: https://medium.com/@aditi.rupade/pqc-lattices-codes-and-hashes-1d0a7965c4ae
+      Successfully extracted refinement content using strategy: no_extraction
+      Fetched content (77688 chars). Summarizing...
+      Summary generated (1445 chars).
+  Generated 2 new summaries for refinement topic 'Specific types and brief descriptions of PQC algorithm families (e.g., lattice-based, code-based, hash-based, multivariate)'.
+  [7e] Revising report with new information...
+  Report revision complete.
+-- Refinement Iteration 2/2 --
+No refinement request found in the draft. Exiting loop.
+-- Refinement loop complete. --
+
+[Step 8/8] Finalizing report...
+--- Deep Research complete! --- Delivering final report.
+
+--- DEEP RESEARCH COMPLETE ---
+
+
+======== FINAL REPORT ========
+**Report: The Impact of Quantum Computing on Cybersecurity Threats**
+
+**1. Introduction to Quantum Computing and Cybersecurity**
+
+Quantum computing represents a fundamental shift in computation, harnessing the principles of quantum mechanics to perform calculations far beyond the capabilities of classical computers. Unlike traditional computers that use bits representing either 0 or 1, quantum computers use quantum bits, or "qubits," which can represent 0, 1, or both simultaneously through a property called superposition [Source 7: Quantum Computing Cybersecurity Explained - NordPass](https://nordpass.com/blog/quantum-computing-cybersecurity/). This allows quantum computers to explore a vast number of possibilities concurrently, offering the potential to solve complex problems in fields like medicine, materials science, and artificial intelligence [Source 6: Quantum Computing is a Long-Term Cybersecurity Risk, But ...](https://thequantuminsider.com/2025/02/01/quantum-computing-is-a-long-term-cybersecurity-risk-but-deserves-immediate-attention-analysts-report/).
+
+Cybersecurity, in turn, encompasses the practices, technologies, and processes designed to protect computer systems, networks, and data from attack, damage, or unauthorized access. A cornerstone of modern cybersecurity is cryptography – the science of encoding and decoding information. Encryption algorithms are essential for securing data transmission (e.g., emails, financial transactions), protecting stored data, and ensuring digital identity authentication [Source 5: Is Quantum Computing a Cybersecurity Threat? | American Scientist](https://www.americanscientist.org/article/is-quantum-computing-a-cybersecurity-threat). Our current digital security infrastructure heavily relies on cryptographic methods presumed to be secure against attacks by even the most powerful classical computers.
+
+The intersection of quantum computing and cybersecurity is becoming increasingly critical because the very power that makes quantum computers potentially revolutionary also equips them to break many of the cryptographic systems currently safeguarding global digital communications and data [Source 1: What Is Quantum Computing's Threat to Cybersecurity? - Palo Alto ...](https://www.paloaltonetworks.com/cyberpedia/what-is-quantum-computings-threat-to-cybersecurity), [Source 5: Is Quantum Computing a Cybersecurity Threat? | American Scientist](https://www.americanscientist.org/article/is-quantum-computing-a-cybersecurity-threat). Understanding this intersection is vital for preparing for a future where the rules of digital security may be profoundly altered.
+
+**2. Current Cybersecurity Landscape and its Vulnerabilities**
+
+In the classical computing era, cybersecurity relies heavily on cryptographic algorithms to ensure confidentiality, integrity, and authentication. Two main types of cryptography are employed: symmetric and asymmetric (or public-key) cryptography [Source 5: Is Quantum Computing a Cybersecurity Threat? | American Scientist](https://www.americanscientist.org/article/is-quantum-computing-a-cybersecurity-threat).
+
+Symmetric cryptography uses the same secret key for both encryption and decryption. Algorithms like the Advanced Encryption Standard (AES) are widely used and considered very secure against classical attacks, provided the key length is sufficient [Source 5: Is Quantum Computing a Cybersecurity Threat? | American Scientist](https://www.americanscientist.org/article/is-quantum-computing-a-cybersecurity-threat), [Source 7: Quantum Computing Cybersecurity Explained - NordPass](https://nordpass.com/blog/quantum-computing-cybersecurity/).
+
+Asymmetric cryptography, or public-key cryptography, uses a pair of keys: a public key, which can be shared openly, and a private key, which must be kept secret. This enables secure communication without pre-sharing a secret key and is fundamental to secure internet protocols (like HTTPS), digital signatures, and public key infrastructure (PKI). Widely used public-key algorithms include RSA, Diffie-Hellman, and Elliptic Curve Cryptography (ECC) [Source 1: What Is Quantum Computing's Threat to Cybersecurity? - Palo Alto ...](https://www.paloaltonetworks.com/cyberpedia/what-is-quantum-computings-threat-to-cybersecurity), [Source 5: Is Quantum Computing a Cybersecurity Threat? | American Scientist](https://www.americanscientist.org/article/is-quantum-computing-a-cybersecurity-threat).
+
+The security of these public-key systems relies on the computational difficulty for classical computers to solve certain mathematical problems, such as factoring large numbers (for RSA) or computing discrete logarithms (for Diffie-Hellman and ECC) [Source 5: Is Quantum Computing a Cybersecurity Threat? | American Scientist](https://www.americanscientist.org/article/is-quantum-computing-a-cybersecurity-threat). While classical computers struggle with these problems, making the encryption strong for practical purposes today, the advent of powerful quantum computers fundamentally changes this equation, creating a significant vulnerability in our current cybersecurity infrastructure [Source 2: Quantum computing cybersecurity risk: PwC](https://www.pwc.com/us/en/services/consulting/cybersecurity-risk-regulatory/library/quantum-computing-cybersecurity-risk.html).
+
+**3. Quantum Computing's Threat to Modern Encryption**
+
+The primary threat quantum computing poses to cybersecurity stems from its potential ability to break widely used public-key encryption algorithms. Quantum computers capable of running Shor's algorithm could efficiently solve the underlying mathematical problems (large number factorization and discrete logarithm computation) that guarantee the security of RSA, ECC, and Diffie-Hellman cryptography [Source 5: Is Quantum Computing a Cybersecurity Threat? | American Scientist](https://www.americanscientist.org/article/is-quantum-computing-a-cybersecurity-threat), [Source 8: Post-quantum cryptography - Wikipedia](https://en.wikipedia.org/wiki/Post-quantum_cryptography). This would render these currently secure methods ineffective [Source 1: What Is Quantum Computing's Threat to Cybersecurity? - Palo Alto ...](https://www.paloaltonetworks.com/cyberpedia/what-is-quantum-computings-threat-to-cybersecurity).
+
+While symmetric encryption like AES is also theoretically vulnerable to quantum attacks (e.g., using Grover's algorithm), the impact is less dramatic; security can generally be restored by sufficiently increasing the key length [Source 5: Is Quantum Computing a Cybersecurity Threat? | American Scientist](https://www.americanscientist.org/article/is-quantum-computing-a-cybersecurity-threat), [Source 8: Post-quantum cryptography - Wikipedia](https://en.wikipedia.org/wiki/Post-quantum_cryptography). Public-key systems, however, face a more fundamental threat.
+
+The timescale for this threat materializing is debated. Current quantum computers lack the necessary processing power (measured in stable qubits and low error rates) to break strong, real-world encryption [Source 5: Is Quantum Computing a Cybersecurity Threat? | American Scientist](https://www.americanscientist.org/article/is-quantum-computing-a-cybersecurity-threat), [Source 7: Quantum Computing Cybersecurity Explained - NordPass](https://nordpass.com/blog/quantum-computing-cybersecurity/), [Source 8: Post-quantum cryptography - Wikipedia](https://en.wikipedia.org/wiki/Post-quantum_cryptography). Some analyses suggest high-security encryption like RSA-2048 might be safe until the 2050s or 2060s, while others, considering potential faster progress in error correction and algorithms, forecast potential decryption capabilities emerging around 2035 or even 2030 [Source 3: What is the cyber security risk from quantum computing?](https://kpmg.com/au/en/home/insights/2024/04/cyber-security-risk-from-quantum-computing.html), [Source 6: Quantum Computing is a Long-Term Cybersecurity Risk, But ...](https://thequantuminsider.com/2025/02/01/quantum-computing-is-a-long-term-cybersecurity-risk-but-deserves-immediate-attention-analysts-report/). Despite the uncertainty, the threat is considered significant enough to warrant immediate attention [Source 4: How tech firms are tackling the risks of quantum computing](https://www.weforum.org/stories/2024/04/quantum-computing-cybersecurity-risks/), [Source 6: Quantum Computing is a Long-Term Cybersecurity Risk, But ...](https://thequantuminsider.com/2025/02/01/quantum-computing-is-a-long-term-cybersecurity-risk-but-deserves-immediate-attention-analysts-report/).
+
+The potential impact, often referred to as "Q-Day," is widespread [Source 7: Quantum Computing Cybersecurity Explained - NordPass](https://nordpass.com/blog/quantum-computing-cybersecurity/). Breaking public-key cryptography could:
+*   Expose sensitive data protected by current encryption standards [Source 1: What Is Quantum Computing's Threat to Cybersecurity? - Palo Alto ...](https://www.paloaltonetworks.com/cyberpedia/what-is-quantum-computings-threat-to-cybersecurity).
+*   Compromise secure communication channels like HTTPS (web browsing) and VPNs (remote access) [Source 1: What Is Quantum Computing's Threat to Cybersecurity? - Palo Alto ...](https://www.paloaltonetworks.com/cyberpedia/what-is-quantum-computings-threat-to-cybersecurity), [Source 3: What is the cyber security risk from quantum computing?](https://kpmg.com/au/en/home/insights/2024/04/cyber-security-risk-from-quantum-computing.html).
+*   Allow attackers to forge digital signatures, undermining trust in software updates, legal documents, and digital identities [Source 1: What Is Quantum Computing's Threat to Cybersecurity? - Palo Alto ...](https://www.paloaltonetworks.com/cyberpedia/what-is-quantum-computings-threat-to-cybersecurity), [Source 5: Is Quantum Computing a Cybersecurity Threat? | American Scientist](https://www.americanscientist.org/article/is-quantum-computing-a-cybersecurity-threat).
+*   Jeopardize the security of blockchain systems and cryptocurrencies [Source 1: What Is Quantum Computing's Threat to Cybersecurity? - Palo Alto ...](https://www.paloaltonetworks.com/cyberpedia/what-is-quantum-computings-threat-to-cybersecurity), [Source 3: What is the cyber security risk from quantum computing?](https://kpmg.com/au/en/home/insights/2024/04/cyber-security-risk-from-quantum-computing.html).
+*   Create vulnerabilities in Internet of Things (IoT) devices and critical infrastructure across sectors like government, healthcare, finance, and utilities [Source 1: What Is Quantum Computing's Threat to Cybersecurity? - Palo Alto ...](https://www.paloaltonetworks.com/cyberpedia/what-is-quantum-computings-threat-to-cybersecurity).
+
+A significant concern is the "Harvest Now, Decrypt Later" (HNDL) attack strategy. Adversaries, potentially nation-states, could intercept and store encrypted data today, waiting for sufficiently powerful quantum computers to become available to decrypt it in the future [Source 1: What Is Quantum Computing's Threat to Cybersecurity? - Palo Alto ...](https://www.paloaltonetworks.com/cyberpedia/what-is-quantum-computings-threat-to-cybersecurity), [Source 2: Quantum computing cybersecurity risk: PwC](https://www.pwc.com/us/en/services/consulting/cybersecurity-risk-regulatory/library/quantum-computing-cybersecurity-risk.html), [Source 3: What is the cyber security risk from quantum computing?](https://kpmg.com/au/en/home/insights/2024/04/cyber-security-risk-from-quantum-computing.html), [Source 8: Post-quantum cryptography - Wikipedia](https://en.wikipedia.org/wiki/Post-quantum_cryptography). This makes data with long-term sensitivity (e.g., health records, financial data, government secrets) particularly vulnerable now [Source 3: What is the cyber security risk from quantum computing?](https://kpmg.com/au/en/home/insights/2024/04/cyber-security-risk-from-quantum-computing.html).
+
+**4. Mitigation Strategies: Post-Quantum Cryptography**
+
+In response to the looming quantum threat, researchers and institutions worldwide are developing and standardizing new cryptographic methods collectively known as Post-Quantum Cryptography (PQC) or quantum-resistant cryptography [Source 1: What Is Quantum Computing's Threat to Cybersecurity? - Palo Alto ...](https://www.paloaltonetworks.com/cyberpedia/what-is-quantum-computings-threat-to-cybersecurity), [Source 5: Is Quantum Computing a Cybersecurity Threat? | American Scientist](https://www.americanscientist.org/article/is-quantum-computing-a-cybersecurity-threat). PQC encompasses algorithms designed to be secure against attacks from both classical and quantum computers [Source 7: Quantum Computing Cybersecurity Explained - NordPass](https://nordpass.com/blog/quantum-computing-cybersecurity/). These algorithms are based on different mathematical problems believed to be hard for quantum computers to solve [Source 8: Post-quantum cryptography - Wikipedia](https://en.wikipedia.org/wiki/Post-quantum_cryptography).
+
+The development of PQC involves exploring various families of mathematical approaches. The main categories showing promise include [Source 8: Post-quantum cryptography - Wikipedia](https://en.wikipedia.org/wiki/Post-quantum_cryptography), [Source 9: PQC- Lattices, Codes, and Hashes - Medium](https://medium.com/@aditi.rupade/pqc-lattices-codes-and-hashes-1d0a7965c4ae):
+*   **Lattice-based cryptography:** Relies on the difficulty of solving problems related to mathematical structures called lattices. Examples include schemes like Learning With Errors (LWE) and NTRU [Source 8: Post-quantum cryptography - Wikipedia](https://en.wikipedia.org/wiki/Post-quantum_cryptography), [Source 9: PQC- Lattices, Codes, and Hashes - Medium](https://medium.com/@aditi.rupade/pqc-lattices-codes-and-hashes-1d0a7965c4ae). LWE introduces errors into systems of equations to create cryptographic security [Source 9: PQC- Lattices, Codes, and Hashes - Medium](https://medium.com/@aditi.rupade/pqc-lattices-codes-and-hashes-1d0a7965c4ae).
+*   **Code-based cryptography:** Uses error-correcting codes, with security based on the difficulty of decoding a random linear code. Examples include the McEliece and Niederreiter cryptosystems [Source 8: Post-quantum cryptography - Wikipedia](https://en.wikipedia.org/wiki/Post-quantum_cryptography). These often involve large public keys compared to current systems [Source 9: PQC- Lattices, Codes, and Hashes - Medium](https://medium.com/@aditi.rupade/pqc-lattices-codes-and-hashes-1d0a7965c4ae).
+*   **Hash-based cryptography:** Builds upon secure hash functions. These are primarily used for digital signatures (e.g., Merkle signatures, XMSS) and rely on the collision resistance of the underlying hash functions [Source 8: Post-quantum cryptography - Wikipedia](https://en.wikipedia.org/wiki/Post-quantum_cryptography), [Source 9: PQC- Lattices, Codes, and Hashes - Medium](https://medium.com/@aditi.rupade/pqc-lattices-codes-and-hashes-1d0a7965c4ae).
+*   **Multivariate cryptography:** Based on the difficulty of solving systems of multivariate polynomial equations over a finite field. The Rainbow signature scheme is an example [Source 8: Post-quantum cryptography - Wikipedia](https://en.wikipedia.org/wiki/Post-quantum_cryptography).
+*   **Isogeny-based cryptography:** Uses maps (isogenies) between elliptic curves. The security relies on the difficulty of computing an isogeny between two given curves [Source 8: Post-quantum cryptography - Wikipedia](https://en.wikipedia.org/wiki/Post-quantum_cryptography).
+
+Spearheading the standardization effort is the U.S. National Institute of Standards and Technology (NIST), which has been running a multi-year project to evaluate and select PQC algorithms for public standardization [Source 1: What Is Quantum Computing's Threat to Cybersecurity? - Palo Alto ...](https://www.paloaltonetworks.com/cyberpedia/what-is-quantum-computings-threat-to-cybersecurity), [Source 5: Is Quantum Computing a Cybersecurity Threat? | American Scientist](https://www.americanscientist.org/article/is-quantum-computing-a-cybersecurity-threat). NIST selected initial algorithms in 2022 and released its first PQC standards in 2024, with potentially more expected near the end of 2024 [Source 3: What is the cyber security risk from quantum computing?](https://kpmg.com/au/en/home/insights/2024/04/cyber-security-risk-from-quantum-computing.html), [Source 8: Post-quantum cryptography - Wikipedia](https://en.wikipedia.org/wiki/Post-quantum_cryptography). Other international bodies like the International Organization for Standardization (ISO), European Telecommunications Standards Institute (ETSI), European Union Agency for Cybersecurity (ENISA), and the Australian Signals Directorate (ASD) are also involved in research, guidance, and standardization efforts [Source 1: What Is Quantum Computing's Threat to Cybersecurity? - Palo Alto ...](https://www.paloaltonetworks.com/cyberpedia/what-is-quantum-computings-threat-to-cybersecurity), [Source 3: What is the cyber security risk from quantum computing?](https://kpmg.com/au/en/home/insights/2024/04/cyber-security-risk-from-quantum-computing.html).
+
+The transition to PQC presents significant challenges. PQC algorithms often require larger key sizes compared to pre-quantum algorithms [Source 8: Post-quantum cryptography - Wikipedia](https://en.wikipedia.org/wiki/Post-quantum_cryptography). Organizations need to inventory their existing cryptographic systems, assess risks, and plan for migration, which can be complex and costly, involving upgrades to hardware, software, and protocols [Source 1: What Is Quantum Computing's Threat to Cybersecurity? - Palo Alto ...](https://www.paloaltonetworks.com/cyberpedia/what-is-quantum-computings-threat-to-cybersecurity), [Source 2: Quantum computing cybersecurity risk: PwC](https://www.pwc.com/us/en/services/consulting/cybersecurity-risk-regulatory/library/quantum-computing-cybersecurity-risk.html), [Source 3: What is the cyber security risk from quantum computing?](https://kpmg.com/au/en/home/insights/2024/04/cyber-security-risk-from-quantum-computing.html), [Source 8: Post-quantum cryptography - Wikipedia](https://en.wikipedia.org/wiki/Post-quantum_cryptography). Managing existing technical debt adds another layer of difficulty [Source 3: What is the cyber security risk from quantum computing?](https://kpmg.com/au/en/home/insights/2024/04/cyber-security-risk-from-quantum-computing.html). Many recommend a hybrid approach during the transition, using both classical and PQC algorithms simultaneously to mitigate risks associated with new PQC vulnerabilities, although some government agencies express concern about the added complexity [Source 1: What Is Quantum Computing's Threat to Cybersecurity? - Palo Alto ...](https://www.paloaltonetworks.com/cyberpedia/what-is-quantum-computings-threat-to-cybersecurity), [Source 8: Post-quantum cryptography - Wikipedia](https://en.wikipedia.org/wiki/Post-quantum_cryptography)]. Developing "crypto-agility" – the ability to easily update or switch cryptographic algorithms – is crucial for future resilience [Source 2: Quantum computing cybersecurity risk: PwC](https://www.pwc.com/us/en/services/consulting/cybersecurity-risk-regulatory/library/quantum-computing-cybersecurity-risk.html), [Source 3: What is the cyber security risk from quantum computing?](https://kpmg.com/au/en/home/insights/2024/04/cyber-security-risk-from-quantum-computing.html).
+
+Alongside PQC, other quantum-related security technologies are being explored, such as Quantum Key Distribution (QKD) and Quantum Random Number Generators (QRNGs). QKD uses quantum physics principles to enable secure key exchange with built-in eavesdropping detection, though it typically requires specialized hardware and doesn't solve all cryptographic problems like digital signatures [Source 3: What is the cyber security risk from quantum computing?](https://kpmg.com/au/en/home/insights/2024/04/cyber-security-risk-from-quantum-computing.html), [Source 5: Is Quantum Computing a Cybersecurity Threat? | American Scientist](https://www.americanscientist.org/article/is-quantum-computing-a-cybersecurity-threat), [Source 7: Quantum Computing Cybersecurity Explained - NordPass](https://nordpass.com/blog/quantum-computing-cybersecurity/). QRNGs aim to produce truly unpredictable random numbers, improving the foundation for cryptographic keys [Source 3: What is the cyber security risk from quantum computing?](https://kpmg.com/au/en/home/insights/2024/04/cyber-security-risk-from-quantum-computing.html), [Source 7: Quantum Computing Cybersecurity Explained - NordPass](https://nordpass.com/blog/quantum-computing-cybersecurity/).
+
+**5. Future Outlook and Recommendations**
+
+While estimates vary, there is a growing consensus that cryptographically relevant quantum computers pose a long-term, but serious, risk that requires immediate attention [Source 6: Quantum Computing is a Long-Term Cybersecurity Risk, But ...](https://thequantuminsider.com/2025/02/01/quantum-computing-is-a-long-term-cybersecurity-risk-but-deserves-immediate-attention-analysts-report/). Forecasts for when quantum computers might break current high-security encryption range from 2030 to beyond 2050 [Source 3: What is the cyber security risk from quantum computing?](https://kpmg.com/au/en/home/insights/2024/04/cyber-security-risk-from-quantum-computing.html), [Source 6: Quantum Computing is a Long-Term Cybersecurity Risk, But ...](https://thequantuminsider.com/2025/02/01/quantum-computing-is-a-long-term-cybersecurity-risk-but-deserves-immediate-attention-analysts-report/). Regardless of the exact timeline, the potential consequences are severe, especially for data requiring long-term confidentiality [Source 3: What is the cyber security risk from quantum computing?](https://kpmg.com/au/en/home/insights/2024/04/cyber-security-risk-from-quantum-computing.html). Mosca's theorem highlights the urgency: if the time needed to re-tool systems with quantum-safe cryptography plus the required lifespan of那data's security exceeds the time until quantum computers can break current encryption, organizations are already at risk [Source 3: What is the cyber security risk from quantum computing?](https://kpmg.com/au/en/home/insights/2024/04/cyber-security-risk-from-quantum-computing.html).
+
+Governments and industries face significant implications. Critical infrastructure sectors are particularly vulnerable [Source 1: What Is Quantum Computing's Threat to Cybersecurity? - Palo Alto ...](https://www.paloaltonetworks.com/cyberpedia/what-is-quantum-computings-threat-to-cybersecurity). Nation-state actors are perceived as a primary near-term threat, potentially engaging in HNDL attacks and seeking strategic advantage through quantum capabilities [Source 2: Quantum computing cybersecurity risk: PwC](https://www.pwc.com/us/en/services/consulting/cybersecurity-risk-regulatory/library/quantum-computing-cybersecurity-risk.html), [Source 6: Quantum Computing is a Long-Term Cybersecurity Risk, But ...](https://thequantuminsider.com/2025/02/01/quantum-computing-is-a-long-term-cybersecurity-risk-but-deserves-immediate-attention-analysts-report/). Consequently, governments are enacting legislation, like the 2022 US Quantum Computing Cybersecurity Preparedness Act, mandating federal agencies to transition to PQC and promoting secure standards [Source 2: Quantum computing cybersecurity risk: PwC](https://www.pwc.com/us/en/services/consulting/cybersecurity-risk-regulatory/library/quantum-computing-cybersecurity-risk.html), [Source 3: What is the cyber security risk from quantum computing?](https://kpmg.com/au/en/home/insights/2024/04/cyber-security-risk-from-quantum-computing.html). International collaboration and frameworks, such as those developed by the World Economic Forum, aim to guide a secure transition [Source 4: How tech firms are tackling the risks of quantum computing](https://www.weforum.org/stories/2024/04/quantum-computing-cybersecurity-risks/).
+
+Organizations, regardless of size or sector, should take proactive steps:
+*   **Stay Informed and Raise Awareness:** Educate leaders (CSOs, IT managers) and technical teams about quantum risks and mitigation strategies. Foster quantum impact awareness training [Source 1: What Is Quantum Computing's Threat to Cybersecurity? - Palo Alto ...](https://www.paloaltonetworks.com/cyberpedia/what-is-quantum-computings-threat-to-cybersecurity), [Source 3: What is the cyber security risk from quantum computing?](https://kpmg.com/au/en/home/insights/2024/04/cyber-security-risk-from-quantum-computing.html).
+*   **Inventory and Assess:** Discover and document all cryptographic assets and their usage ("crypto inventory"). Assess the value and required lifetime of protected data to understand specific vulnerabilities and quantum risk factors [Source 2: Quantum computing cybersecurity risk: PwC](https://www.pwc.com/us/en/services/consulting/cybersecurity-risk-regulatory/library/quantum-computing-cybersecurity-risk.html), [Source 3: What is the cyber security risk from quantum computing?](https://kpmg.com/au/en/home/insights/2024/04/cyber-security-risk-from-quantum-computing.html).
+*   **Plan and strategize:** Develop a risk management framework and a concrete roadmap for migration to quantum-safe cryptography, including timelines and resource allocation [Source 1: What Is Quantum Computing's Threat to Cybersecurity? - Palo Alto ...](https://www.paloaltonetworks.com/cyberpedia/what-is-quantum-computings-threat-to-cybersecurity), [Source 2: Quantum computing cybersecurity risk: PwC](https://www.pwc.com/us/en/services/consulting/cybersecurity-risk-regulatory/library/quantum-computing-cybersecurity-risk.html). Protect against HNDL attacks now [Source 2: Quantum computing cybersecurity risk: PwC](https://www.pwc.com/us/en/services/consulting/cybersecurity-risk-regulatory/library/quantum-computing-cybersecurity-risk.html).
+*   **Adopt PQC and Crypto-Agility:** Plan for PQC integration and modernize the cryptographic environment to be agile, allowing for easier algorithm updates [Source 1: What Is Quantum Computing's Threat to Cybersecurity? - Palo Alto ...](https://www.paloaltonetworks.com/cyberpedia/what-is-quantum-computings-threat-to-cybersecurity), [Source 3: What is the cyber security risk from quantum computing?](https://kpmg.com/au/en/home/insights/2024/04/cyber-security-risk-from-quantum-computing.html). Monitor and prepare to adopt standards from NIST and other bodies [Source 1: What Is Quantum Computing's Threat to Cybersecurity? - Palo Alto ...](https://www.paloaltonetworks.com/cyberpedia/what-is-quantum-computings-threat-to-cybersecurity), [Source 2: Quantum computing cybersecurity risk: PwC](https://www.pwc.com/us/en/services/consulting/cybersecurity-risk-regulatory/library/quantum-computing-cybersecurity-risk.html). Tech firms like Apple (with PQ3 for iMessage) and Google are already implementing PQC protocols [Source 4: How tech firms are tackling the risks of quantum computing](https://www.weforum.org/stories/2024/04/quantum-computing-cybersecurity-risks/), [Source 7: Quantum Computing Cybersecurity Explained - NordPass](https://nordpass.com/blog/quantum-computing-cybersecurity/), [Source 8: Post-quantum cryptography - Wikipedia](https://en.wikipedia.org/wiki/Post-quantum_cryptography).
+*   **Assess Third Parties:** Evaluate the quantum readiness of vendors and partners within the supply chain [Source 2: Quantum computing cybersecurity risk: PwC](https://www.pwc.com/us/en/services/consulting/cybersecurity-risk-regulatory/library/quantum-computing-cybersecurity-risk.html), [Source 3: What is the cyber security risk from quantum computing?](https://kpmg.com/au/en/home/insights/2024/04/cyber-security-risk-from-quantum-computing.html).
+*   **Invest and Monitor:** Support research and development in quantum-resistant technologies. Continuously monitor advancements in quantum computing and evolving standards and regulations [Source 1: What Is Quantum Computing's Threat to Cybersecurity? - Palo Alto ...](https://www.paloaltonetworks.com/cyberpedia/what-is-quantum-computings-threat-to-cybersecurity), [Source 3: What is the cyber security risk from quantum computing?](https://kpmg.com/au/en/home/insights/2024/04/cyber-security-risk-from-quantum-computing.html), [Source 6: Quantum Computing is a Long-Term Cybersecurity Risk, But ...](https://thequantuminsider.com/2025/02/01/quantum-computing-is-a-long-term-cybersecurity-risk-but-deserves-immediate-attention-analysts-report/).
+
+**6. Conclusion**
+
+Quantum computing holds immense promise but simultaneously presents a profound, long-term challenge to cybersecurity. Its potential to break the public-key cryptography underpinning much of our digital world necessitates a paradigm shift in how we protect data and communications. While cryptographically relevant quantum computers may still be years or decades away, the risk posed by "Harvest Now, Decrypt Later" attacks and the significant time required to transition global systems to new cryptographic standards make this an urgent issue.
+
+Efforts are well underway to develop and standardize Post-Quantum Cryptography (PQC) as a defense against this emerging threat. Various mathematical approaches, including lattice-based, code-based, hash-based, multivariate, and isogeny-based cryptography, form the basis for these new algorithms [Source 8: Post-quantum cryptography - Wikipedia](https://en.wikipedia.org/wiki/Post-quantum_cryptography), [Source 9: PQC- Lattices, Codes, and Hashes - Medium](https://medium.com/@aditi.rupade/pqc-lattices-codes-and-hashes-1d0a7965c4ae). Global standardization bodies like NIST are leading the charge, and technology companies are beginning to implement quantum-resistant solutions [Source 1: What Is Quantum Computing's Threat to Cybersecurity? - Palo Alto ...](https://www.paloaltonetworks.com/cyberpedia/what-is-quantum-computings-threat-to-cybersecurity), [Source 8: Post-quantum cryptography - Wikipedia](https://en.wikipedia.org/wiki/Post-quantum_cryptography). However, the migration to PQC will be a complex, resource-intensive undertaking for organizations worldwide.
+
+Proactive preparation is paramount. Businesses, governments, and individuals must understand the risks, inventory their cryptographic dependencies, develop migration strategies, and invest in quantum-resistant technologies and crypto-agility [Source 2: Quantum computing cybersecurity risk: PwC](https://www.pwc.com/us/en/services/consulting/cybersecurity-risk-regulatory/library/quantum-computing-cybersecurity-risk.html), [Source 3: What is the cyber security risk from quantum computing?](https://kpmg.com/au/en/home/insights/2024/04/cyber-security-risk-from-quantum-computing.html). By taking concerted action now, we can mitigate the future cybersecurity risks posed by quantum computing and work towards ensuring a secure digital future in the quantum era.
+============================
