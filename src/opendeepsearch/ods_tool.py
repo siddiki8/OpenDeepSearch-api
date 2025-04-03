@@ -18,7 +18,7 @@ class OpenDeepSearchTool(Tool):
         self.search_model_name = model_name #LiteLLM model name
         self.reranker = reranker
 
-    def forward(self, query: str):
+    def forward(self, query: str) -> str:
         answer = self.search_tool.ask_sync(query, max_sources=2, pro_mode=True)
         return answer
 
