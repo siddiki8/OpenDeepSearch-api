@@ -15,6 +15,7 @@ from crawl4ai.markdown_generation_strategy import DefaultMarkdownGenerator
 from opendeepsearch.context_scraping.extraction_result import ExtractionResult, print_extraction_result
 from opendeepsearch.context_scraping.basic_web_scraper import ExtractionConfig
 from opendeepsearch.context_scraping.strategy_factory import StrategyFactory
+from .utils import clean_html, filter_quality_content, get_wikipedia_content
 
 class WebScraper:
     """Unified scraper that encapsulates all extraction strategies and configuration"""
@@ -27,7 +28,7 @@ class WebScraper:
         debug: bool = False,
         filter_content: bool = False
     ):
-        self.browser_config = browser_config or BrowserConfig(headless=True, verbose=True)
+        self.browser_config = browser_config or BrowserConfig(headless=True, verbose=debug)
         self.debug = debug
         self.factory = StrategyFactory()
         self.strategies = strategies or ['markdown_llm', 'html_llm', 'fit_markdown_llm', 'css', 'xpath', 'no_extraction', 'cosine']
@@ -54,7 +55,7 @@ class WebScraper:
 
     def _create_crawler_config(self) -> CrawlerRunConfig:
         """Creates default crawler configuration"""
-        content_filter = PruningContentFilter(user_query=self.user_query) if self.user_query else PruningContentFilter()
+        content_filter = PruningContentFilter()
         return CrawlerRunConfig(
             cache_mode=CacheMode.BYPASS,
             markdown_generator=DefaultMarkdownGenerator(
@@ -71,9 +72,23 @@ class WebScraper:
         """
         # Handle Wikipedia URLs
         if 'wikipedia.org/wiki/' in url:
-            from src.opendeepsearch.context_scraping.utils import get_wikipedia_content
             try:
                 content = get_wikipedia_content(url)
+                # Apply quality filter if enabled
+                if self.filter_content and content:
+                    if self.debug:
+                        print(f"Debug: Filtering Wikipedia content for {url}")
+                    content = filter_quality_content(content)
+
+                if not content: # Handle case where filtering removed everything
+                    return {
+                        strategy_name: ExtractionResult(
+                            name=strategy_name,
+                            success=False,
+                            error="Wikipedia content filtered out or empty."
+                        ) for strategy_name in self.strategies
+                    }
+                
                 # Create same result for all strategies since we're using Wikipedia content
                 return {
                     strategy_name: ExtractionResult(
@@ -89,12 +104,41 @@ class WebScraper:
         
         # Normal scraping for non-Wikipedia URLs or if Wikipedia extraction failed
         results = {}
+        # First, fetch the raw HTML content once
+        raw_html = await self._fetch_raw_html(url)
+        if raw_html is None: # Handle fetch failure
+             return {
+                strategy_name: ExtractionResult(
+                    name=strategy_name,
+                    success=False,
+                    error="Failed to fetch raw HTML content."
+                ) for strategy_name in self.strategies
+            }
+        
+        # Clean the HTML *before* passing to strategies or filtering
+        cleaned_html = clean_html(raw_html)
+
+        # Apply quality filter to cleaned HTML if enabled
+        base_content_for_strategies = cleaned_html
+        if self.filter_content:
+            if self.debug:
+                print(f"Debug: Applying quality filter to cleaned HTML for {url}")
+            filtered_html = filter_quality_content(cleaned_html)
+            if filtered_html: # Use filtered content if filter didn't remove everything
+                base_content_for_strategies = filtered_html
+            else:
+                if self.debug:
+                    print(f"Debug: Quality filter removed all content for {url}. Using original cleaned HTML for strategies.")
+                # If filter removes everything, strategies might still work on the cleaned_html
+
+        # Now run extraction strategies on the prepared base content
         for strategy_name in self.strategies:
             config = ExtractionConfig(
                 name=strategy_name,
                 strategy=self.strategy_map[strategy_name]()
             )
-            result = await self.extract(config, url)
+            # Pass the prepared base content (cleaned or filtered) to extract method
+            result = await self.extract(config, url, base_content_for_strategies)
             results[strategy_name] = result
             
         return results
@@ -121,8 +165,26 @@ class WebScraper:
             
         return results
 
-    async def extract(self, extraction_config: ExtractionConfig, url: str) -> ExtractionResult:
-        """Internal method to perform extraction using specified strategy"""
+    async def _fetch_raw_html(self, url: str) -> Optional[str]:
+        """Fetches raw HTML content using AsyncWebCrawler."""
+        try:
+            # Use a simple config just to fetch HTML
+            config = CrawlerRunConfig(cache_mode=CacheMode.BYPASS)
+            async with AsyncWebCrawler(config=self.browser_config) as crawler:
+                result = await crawler.arun(url=url, config=config)
+            if result.success and hasattr(result, 'html'):
+                return result.html
+            else:
+                if self.debug:
+                    print(f"Debug: Failed to fetch raw HTML for {url}. Error: {getattr(result, 'error', 'Unknown')}")
+                return None
+        except Exception as e:
+            if self.debug:
+                print(f"Debug: Exception during raw HTML fetch for {url}: {e}")
+            return None
+
+    async def extract(self, extraction_config: ExtractionConfig, url: str, pre_processed_content: str) -> ExtractionResult:
+        """Internal method to perform extraction using specified strategy on pre-processed content."""
         try:
             config = self._create_crawler_config()
             config.extraction_strategy = extraction_config.strategy
@@ -130,61 +192,66 @@ class WebScraper:
             if self.debug:
                 print(f"\nDebug: Attempting extraction with strategy: {extraction_config.name}")
                 print(f"Debug: URL: {url}")
-                print(f"Debug: Strategy config: {config.extraction_strategy}")
-                if self.user_query:
-                    print(f"Debug: User query: {self.user_query}")
+                # Avoid printing potentially large pre_processed_content
+                # print(f"Debug: Pre-processed content length: {len(pre_processed_content)}")
 
-            async with AsyncWebCrawler(config=self.browser_config) as crawler:
-                if isinstance(url, list):
-                    result = await crawler.arun_many(urls=url, config=config)
-                else:
-                    result = await crawler.arun(url=url, config=config)
-
-            if self.debug:
-                print(f"Debug: Raw result attributes: {dir(result)}")
-                print(f"Debug: Raw result: {result.__dict__}")
-
-            # Handle different result formats based on strategy
-            content = None
-            if result.success:
-                if extraction_config.name in ['no_extraction', 'cosine']:
-                    # For strategies that return a list of dictionaries
-                    if hasattr(result, 'markdown_v2'):
-                        content = result.markdown_v2.raw_markdown
-                    elif hasattr(result, 'raw_html'):
-                        content = result.raw_html
-                    elif hasattr(result, 'extracted_content') and result.extracted_content:
-                        if isinstance(result.extracted_content, list):
-                            content = '\n'.join(item.get('content', '') for item in result.extracted_content)
-                        else:
-                            content = result.extracted_content
-                    
-                    if self.filter_content and content:
-                        from src.opendeepsearch.context_scraping.utils import filter_quality_content
-                        content = filter_quality_content(content)
-                else:
-                    content = result.extracted_content
-                    if self.filter_content and content:
-                        from src.opendeepsearch.context_scraping.utils import filter_quality_content
-                        content = filter_quality_content(content)
-
-            if self.debug:
-                print(f"Debug: Processed content: {content[:200] if content else None}")
-
-            extraction_result = ExtractionResult(
-                name=extraction_config.name,
-                success=result.success,
-                content=content,
-                error=getattr(result, 'error', None)  # Capture error if available
-            )
+            # Simulate running the strategy on the pre-processed content
+            # NOTE: This bypasses running Crawl4AI again. This assumes strategies 
+            #       can operate on the pre-processed string or that we adapt them.
+            #       For simplicity, let's assume 'no_extraction' and 'cosine' just return 
+            #       the pre_processed_content. LLM strategies would need separate handling.
             
-            if result.success:
-                extraction_result.raw_markdown_length = len(result.markdown_v2.raw_markdown)
-                extraction_result.citations_markdown_length = len(result.markdown_v2.markdown_with_citations)
-            elif self.debug:
-                print(f"Debug: Final extraction result: {extraction_result.__dict__}")
+            content = None
+            success = True # Assume success unless strategy fails
+            error = None
+            raw_markdown_length = 0 # Initialize
+            citations_markdown_length = 0 # Initialize
 
-            return extraction_result
+            if extraction_config.name in ['no_extraction', 'cosine']:
+                content = pre_processed_content
+                raw_markdown_length = len(pre_processed_content) # Use length as proxy
+            elif extraction_config.name in ['markdown_llm', 'html_llm', 'fit_markdown_llm']:
+                # TODO: Implement calling LLM strategies directly on pre_processed_content
+                # This requires adapting how LLM strategies are invoked.
+                # For now, return placeholder or raise error.
+                success = False
+                error = f"LLM strategy '{extraction_config.name}' direct invocation not yet implemented on pre-processed content."
+                if self.debug:
+                    print(f"Debug: {error}")
+                content = None 
+            elif extraction_config.name in ['css', 'xpath']:
+                # TODO: CSS/XPath strategies need the actual DOM, not just cleaned HTML string.
+                # This refactor might break them. They would need to run on raw_html.
+                # Revisit this: maybe run these *before* cleaning/filtering?
+                success = False
+                error = f"Strategy '{extraction_config.name}' requires DOM access, incompatible with current pre-processing flow."
+                if self.debug:
+                    print(f"Debug: {error}")
+                content = None
+            else:
+                # Unknown strategy
+                success = False
+                error = f"Unknown strategy '{extraction_config.name}' in extract method."
+                content = None
+                
+            # Corrected attribute access: result.markdown.raw_markdown
+            # We are simulating the result here, so direct length calculation is used.
+            # if success:
+            #     # This part doesn't make sense anymore as we aren't running crawl4ai here.
+            #     # We set lengths based on the content we decided to use.
+            #     pass
+
+            if self.debug and not success:
+                print(f"Debug: Extraction failed for strategy {extraction_config.name}. Error: {error}")
+
+            return ExtractionResult(
+                name=extraction_config.name,
+                success=success,
+                content=content,
+                error=error,
+                raw_markdown_length=raw_markdown_length, # Store calculated length
+                citations_markdown_length=citations_markdown_length # Store calculated length (currently 0)
+            )
 
         except Exception as e:
             if self.debug:

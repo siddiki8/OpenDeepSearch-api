@@ -3,16 +3,17 @@ Contains the ExtractionResult class for holding extraction operation results.
 """
 
 from typing import Optional
+from dataclasses import dataclass, field
 
+@dataclass
 class ExtractionResult:
     """Holds the results of an extraction operation"""
-    def __init__(self, name: str, success: bool, content: Optional[str] = None, error: Optional[str] = None):
-        self.name = name
-        self.success = success
-        self.content = content
-        self.error = error
-        self.raw_markdown_length = 0
-        self.citations_markdown_length = 0
+    name: str
+    success: bool
+    content: Optional[str] = None
+    error: Optional[str] = None
+    raw_markdown_length: int = field(default=0)
+    citations_markdown_length: int = field(default=0)
 
 def print_extraction_result(result: ExtractionResult):
     """Utility function to print extraction results"""

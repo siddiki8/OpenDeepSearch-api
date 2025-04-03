@@ -1,12 +1,29 @@
 import re
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 import fasttext
 from huggingface_hub import hf_hub_download
 import wikipediaapi
 
-# Load the model
-model = fasttext.load_model(hf_hub_download("kenhktsui/llm-data-textbook-quality-fasttext-classifer-v2", "model.bin"))
+# Global variable to hold the loaded model, initialized to None
+_fasttext_model: Optional[fasttext.FastText._FastText] = None
 
+def _load_fasttext_model():
+    """Loads the FastText model if not already loaded."""
+    global _fasttext_model
+    if _fasttext_model is None:
+        print("Loading FastText quality model...") # Add log for visibility
+        try:
+            model_path = hf_hub_download(
+                "kenhktsui/llm-data-textbook-quality-fasttext-classifer-v2", 
+                "model.bin"
+            )
+            _fasttext_model = fasttext.load_model(model_path)
+            print("FastText quality model loaded.")
+        except Exception as e:
+            print(f"Error loading FastText model: {e}. Quality filtering may not work.")
+            # Handle error appropriately - maybe raise, or set model to a dummy?
+            # For now, it will remain None, and predict will handle it.
+            
 def clean_markdown_links(text: str, min_quality_score: float = 0.2) -> Tuple[str, float]:
     """
     Clean markdown links and filter low-quality content.
@@ -98,14 +115,24 @@ def predict_educational_value(text_list: List[str]) -> List[float]:
     """
     Predict educational value scores for a list of texts.
     Returns a list of scores between 0 and 2.
+    Loads the model lazily on first call.
     """
+    # Ensure the model is loaded
+    _load_fasttext_model()
+    
+    # Check if model loading failed
+    if _fasttext_model is None:
+        print("Warning: FastText model not loaded. Returning default scores (0.0).")
+        return [0.0] * len(text_list)
+        
     text_list = [replace_newlines(text) for text in text_list]
-    pred = model.predict(text_list, k=-1)
+    pred = _fasttext_model.predict(text_list, k=-1)
     score_list = []
     for l, s in zip(*pred):
         score = 0
         for _l, _s in zip(l, s):
-            score += score_dict[_l] * _s
+            # Check if label exists in dict, default to 0 if not
+            score += score_dict.get(_l, 0) * _s 
         score_list.append(float(score))
     return score_list
 
