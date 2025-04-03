@@ -31,7 +31,7 @@
 </div>
 
 <h4 align="center">
-        <a href="https://arxiv.org/pdf/2503.20201"> Paper  </a> 
+        <a href="https://arxiv.org/pdf/2503.20201"> Paper  </a>
 </h4>
 
 ## Description 📝
@@ -57,17 +57,19 @@ OpenDeepSearch is a lightweight yet powerful search tool designed for seamless i
     - [Using OpenDeepSearch Standalone 🔍](#using-opendeepsearch-standalone-)
     - [Running the Gradio Demo 🖥️](#running-the-gradio-demo-️)
     - [Integrating with SmolAgents \& LiteLLM 🤖⚙️](#integrating-with-smolagents--litellm-️)
+      - [](#)
+    - [ReAct agent with math and search tools 🤖⚙️](#react-agent-with-math-and-search-tools-️)
+      - [](#-1)
   - [Search Modes 🔄](#search-modes-)
     - [Default Mode ⚡](#default-mode-)
     - [Pro Mode 🔍](#pro-mode-)
   - [Acknowledgments 💡](#acknowledgments-)
-  - [License 📝](#license-)
-  - [Contributing 🤝](#contributing-)
+  - [Citation](#citation)
   - [Contact 📩](#contact-)
 
 ## Features ✨
 
-- **Semantic Search** 🧠: Leverages **[Crawl4AI](https://github.com/crawl4ai)** and semantic search rerankers (such as [Qwen2-7B-instruct](https://huggingface.co/Alibaba-NLP/gte-Qwen2-7B-instruct/tree/main) and [Jina AI](https://jina.ai/)) to provide in-depth results
+- **Semantic Search** 🧠: Leverages **[Crawl4AI](https://github.com/unclecode/crawl4ai)** and semantic search rerankers (such as [Qwen2-7B-instruct](https://huggingface.co/Alibaba-NLP/gte-Qwen2-7B-instruct/tree/main) and [Jina AI](https://jina.ai/)) to provide in-depth results
 - **Two Modes of Operation** ⚡:
   - **Default Mode**: Quick and efficient search with minimal latency.
   - **Pro Mode (Deep Search)**: More in-depth and accurate results at the cost of additional processing time.
@@ -90,13 +92,23 @@ Note: using `uv` instead of regular `pip` makes life much easier!
 
 ## Setup
 
-1. **Sign up for Serper.dev**: Get **free 2500 credits** and add your API key.
-   - Visit [serper.dev](https://serper.dev) to create an account.
-   - Retrieve your API key and store it as an environment variable:
-   
-   ```bash
-   export SERPER_API_KEY='your-api-key-here'
-   ```
+1. **Choose a Search Provider**:
+   - **Option 1: Serper.dev**: Get **free 2500 credits** and add your API key.
+     - Visit [serper.dev](https://serper.dev) to create an account.
+     - Retrieve your API key and store it as an environment variable:
+
+     ```bash
+     export SERPER_API_KEY='your-api-key-here'
+     ```
+
+   - **Option 2: SearXNG**: Use a self-hosted or public SearXNG instance.
+     - Specify the SearXNG instance URL when initializing OpenDeepSearch.
+     - Optionally provide an API key if your instance requires authentication:
+
+     ```bash
+     export SEARXNG_INSTANCE_URL='https://your-searxng-instance.com'
+     export SEARXNG_API_KEY='your-api-key-here'  # Optional
+     ```
 
 2. **Choose a Reranking Solution**:
    - **Quick Start with Jina**: Sign up at [Jina AI](https://jina.ai/) to get an API key for immediate use
@@ -116,7 +128,21 @@ Note: using `uv` instead of regular `pip` makes life much easier!
    ```bash
    export <PROVIDER>_API_KEY='your-api-key-here'  # e.g., OPENAI_API_KEY, ANTHROPIC_API_KEY
    ```
-   - When initializing OpenDeepSearch, specify your chosen model using the provider's format:
+   - For OpenAI, you can also set a custom base URL (useful for self-hosted endpoints or proxies):
+   ```bash
+   export OPENAI_BASE_URL='https://your-custom-openai-endpoint.com'
+   ```
+   - You can set default LiteLLM model IDs for different tasks:
+   ```bash
+   # General default model (fallback for all tasks)
+   export LITELLM_MODEL_ID='openrouter/google/gemini-2.0-flash-001'
+
+   # Task-specific models
+   export LITELLM_SEARCH_MODEL_ID='openrouter/google/gemini-2.0-flash-001'  # For search tasks
+   export LITELLM_ORCHESTRATOR_MODEL_ID='openrouter/google/gemini-2.0-flash-001'  # For agent orchestration
+   export LITELLM_EVAL_MODEL_ID='gpt-4o-mini'  # For evaluation tasks
+   ```
+   - When initializing OpenDeepSearch, you can specify your chosen model using the provider's format (this will override the environment variables):
    ```python
    search_agent = OpenDeepSearchTool(model_name="provider/model-name")  # e.g., "anthropic/claude-3-opus-20240229", 'huggingface/microsoft/codebert-base', 'openrouter/google/gemini-2.0-flash-001'
    ```
@@ -132,14 +158,31 @@ from opendeepsearch import OpenDeepSearchTool
 import os
 
 # Set environment variables for API keys
-os.environ["SERPER_API_KEY"] = "your-serper-api-key-here"
+os.environ["SERPER_API_KEY"] = "your-serper-api-key-here"  # If using Serper
+# Or for SearXNG
+# os.environ["SEARXNG_INSTANCE_URL"] = "https://your-searxng-instance.com"
+# os.environ["SEARXNG_API_KEY"] = "your-api-key-here"  # Optional
+
 os.environ["OPENROUTER_API_KEY"] = "your-openrouter-api-key-here"
 os.environ["JINA_API_KEY"] = "your-jina-api-key-here"
 
-search_agent = OpenDeepSearchTool(model_name="openrouter/google/gemini-2.0-flash-001", reranker="jina")  # Set pro_mode for deep search
-# Set reranker to "jina", or "infinity" for self-hosted reranking
+# Using Serper (default)
+search_agent = OpenDeepSearchTool(
+    model_name="openrouter/google/gemini-2.0-flash-001",
+    reranker="jina"
+)
+
+# Or using SearXNG
+# search_agent = OpenDeepSearchTool(
+#     model_name="openrouter/google/gemini-2.0-flash-001",
+#     reranker="jina",
+#     search_provider="searxng",
+#     searxng_instance_url="https://your-searxng-instance.com",
+#     searxng_api_key="your-api-key-here"  # Optional
+# )
+
 query = "Fastest land animal?"
-result = search_agent.search(query)
+result = search_agent.forward(query)
 print(result)
 ```
 
@@ -151,11 +194,33 @@ To try out OpenDeepSearch with a user-friendly interface, simply run:
 python gradio_demo.py
 ```
 
-This will launch a local web interface where you can test different search queries and modes interactively. You can also change the model, reranker, and search mode in `gradio_demo.py`.
+This will launch a local web interface where you can test different search queries and modes interactively.
+
+You can customize the demo with command-line arguments:
+
+```bash
+# Using Serper (default)
+python gradio_demo.py --model-name "openrouter/google/gemini-2.0-flash-001" --reranker "jina"
+
+# Using SearXNG
+python gradio_demo.py --model-name "openrouter/google/gemini-2.0-flash-001" --reranker "jina" \
+  --search-provider "searxng" --searxng-instance "https://your-searxng-instance.com" \
+  --searxng-api-key "your-api-key-here"  # Optional
+```
+
+Available options:
+- `--model-name`: LLM model to use for search
+- `--orchestrator-model`: LLM model for the agent orchestrator
+- `--reranker`: Reranker to use (`jina` or `infinity`)
+- `--search-provider`: Search provider to use (`serper` or `searxng`)
+- `--searxng-instance`: SearXNG instance URL (required if using `searxng`)
+- `--searxng-api-key`: SearXNG API key (optional)
+- `--serper-api-key`: Serper API key (optional, will use environment variable if not provided)
+- `--openai-base-url`: OpenAI API base URL (optional, will use OPENAI_BASE_URL env var if not provided)
 
 ### Integrating with SmolAgents & LiteLLM 🤖⚙️
 
-#### 
+####
 
 ```python
 from opendeepsearch import OpenDeepSearchTool
@@ -163,11 +228,29 @@ from smolagents import CodeAgent, LiteLLMModel
 import os
 
 # Set environment variables for API keys
-os.environ["SERPER_API_KEY"] = "your-serper-api-key-here"
+os.environ["SERPER_API_KEY"] = "your-serper-api-key-here"  # If using Serper
+# Or for SearXNG
+# os.environ["SEARXNG_INSTANCE_URL"] = "https://your-searxng-instance.com"
+# os.environ["SEARXNG_API_KEY"] = "your-api-key-here"  # Optional
+
 os.environ["OPENROUTER_API_KEY"] = "your-openrouter-api-key-here"
 os.environ["JINA_API_KEY"] = "your-jina-api-key-here"
 
-search_agent = OpenDeepSearchTool(model_name="openrouter/google/gemini-2.0-flash-001", reranker="jina") # Set reranker to "jina" or "infinity"
+# Using Serper (default)
+search_agent = OpenDeepSearchTool(
+    model_name="openrouter/google/gemini-2.0-flash-001",
+    reranker="jina"
+)
+
+# Or using SearXNG
+# search_agent = OpenDeepSearchTool(
+#     model_name="openrouter/google/gemini-2.0-flash-001",
+#     reranker="jina",
+#     search_provider="searxng",
+#     searxng_instance_url="https://your-searxng-instance.com",
+#     searxng_api_key="your-api-key-here"  # Optional
+# )
+
 model = LiteLLMModel(
     "openrouter/google/gemini-2.0-flash-001",
     temperature=0.2
@@ -181,12 +264,12 @@ print(result)
 ```
 ### ReAct agent with math and search tools 🤖⚙️
 
-#### 
+####
 ```python
-from opendeepsearch import OpenDeepSearchTool 
+from opendeepsearch import OpenDeepSearchTool
 from opendeepsearch.wolfram_tool import WolframAlphaTool
 from opendeepsearch.prompts import REACT_PROMPT
-from smolagents import LiteLLMModel, ToolCallingAgent, Tool 
+from smolagents import LiteLLMModel, ToolCallingAgent, Tool
 import os
 
 # Set environment variables for API keys
@@ -204,7 +287,7 @@ search_agent = OpenDeepSearchTool(model_name="fireworks_ai/llama-v3p1-70b-instru
 # Initialize the Wolfram Alpha tool
 wolfram_tool = WolframAlphaTool(app_id=os.environ["WOLFRAM_ALPHA_APP_ID"])
 
-# Initialize the React Agent with search and wolfram tools 
+# Initialize the React Agent with search and wolfram tools
 react_agent = ToolCallingAgent(
     tools=[search_agent, wolfram_tool],
     model=model,
@@ -256,13 +339,13 @@ If you use `OpenDeepSearch` in your works, please cite it using the following Bi
 
 ```
 @misc{alzubi2025opendeepsearchdemocratizing,
-      title={Open Deep Search: Democratizing Search with Open-source Reasoning Agents}, 
+      title={Open Deep Search: Democratizing Search with Open-source Reasoning Agents},
       author={Salaheddin Alzubi and Creston Brooks and Purva Chiniya and Edoardo Contente and Chiara von Gerlach and Lucas Irwin and Yihan Jiang and Arda Kaz and Windsor Nguyen and Sewoong Oh and Himanshu Tyagi and Pramod Viswanath},
       year={2025},
       eprint={2503.20201},
       archivePrefix={arXiv},
       primaryClass={cs.LG},
-      url={https://arxiv.org/abs/2503.20201}, 
+      url={https://arxiv.org/abs/2503.20201},
 }
 ```
 
@@ -270,4 +353,3 @@ If you use `OpenDeepSearch` in your works, please cite it using the following Bi
 ## Contact 📩
 
 For questions or collaborations, open an issue or reach out to the maintainers.
-

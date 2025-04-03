@@ -21,7 +21,7 @@ class WebSearchEvaluator:
         self.output_path = output_path
         self.num_workers = num_workers
         self.trial = trial
-        
+
         # Load existing results if any
         self.processed_questions = set()
         if self.output_path.exists():
@@ -36,17 +36,20 @@ class WebSearchEvaluator:
     def worker_init(self):
         """Initialize OpenAI client for each worker."""
         # Create new client for each process
-        self.client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+        self.client = OpenAI(
+            api_key=os.environ.get("OPENAI_API_KEY"),
+            base_url=os.environ.get("OPENAI_BASE_URL")
+        )
 
     def evaluate_single(self, row: pd.Series) -> Dict[str, Any]:
         """Evaluate a single question with its true answer."""
         # Skip if already processed
         if row['question'] in self.processed_questions:
             return None
-            
+
         if not hasattr(self, 'client'):
             self.worker_init()
-            
+
         try:
             start_time = time.time()
             response = self.client.responses.create(
@@ -82,17 +85,17 @@ class WebSearchEvaluator:
     def evaluate_batch(self, df: pd.DataFrame) -> None:
         """Evaluate questions in parallel using multiple workers."""
         with ProcessPoolExecutor(
-            max_workers=self.num_workers, 
+            max_workers=self.num_workers,
             initializer=self.worker_init
         ) as executor:
             # Convert DataFrame rows to list of Series
             rows = [row for _, row in df.iterrows()]
-            
+
             # Create progress bar for total rows
             with tqdm(total=len(rows), desc="Processing questions") as pbar:
                 # Submit all tasks
                 futures = [executor.submit(self.evaluate_single, row) for row in rows]
-                
+
                 # Process results as they complete
                 for future in futures:
                     result = future.result()
@@ -104,11 +107,11 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Evaluate questions using GPT-4 with web search')
     parser.add_argument('--output_dir', type=str, default='output',
                       help='Directory to save results (default: output)')
-    parser.add_argument('--input_data', type=str, 
+    parser.add_argument('--input_data', type=str,
                       default='./evals/datasets/frames_test_set.csv',
                       help='Path to input CSV file')
-    parser.add_argument('--model', type=str, choices=['gpt-4o', 'gpt-4o-mini'],
-                      default='gpt-4o-mini',
+    parser.add_argument('--model', type=str,
+                      default=os.getenv("LITELLM_EVAL_MODEL_ID", os.getenv("LITELLM_MODEL_ID", "gpt-4o-mini")),
                       help='Model to use for evaluation')
     parser.add_argument('--num_workers', type=int, default=4,
                       help='Number of parallel workers (default: 4)')
@@ -118,32 +121,32 @@ def parse_args():
 
 def main():
     args = parse_args()
-    
+
     # Create output directory if it doesn't exist
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    
+
     # Set up output path (now without timestamp)
     output_path = output_dir / f"evaluation_results_{args.model}_trial{args.trial}.jsonl"
-    
+
     # Load input data
     print(f"Loading data from {args.input_data}")
     df = pd.read_csv(args.input_data)
     print(f"Loaded {len(df)} examples")
-    
+
     # Initialize evaluator
     evaluator = WebSearchEvaluator(
-        model=args.model, 
+        model=args.model,
         output_path=output_path,
         num_workers=args.num_workers,
         trial=args.trial
     )
-    
+
     # Run evaluation
     print(f"Starting evaluation with model {args.model} using {args.num_workers} workers...")
     evaluator.evaluate_batch(df)
     print(f"Results saved to {output_path}")
-    
+
     # Load and display summary
     results_df = pd.read_json(output_path, lines=True)
     print("\nResults summary:")

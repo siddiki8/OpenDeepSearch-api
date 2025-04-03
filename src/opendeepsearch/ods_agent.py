@@ -1,8 +1,8 @@
-from typing import Optional, Dict, Any
-from opendeepsearch.serp_search.serp_search import SerperAPI
+from typing import Optional, Dict, Any, Literal
+from opendeepsearch.serp_search.serp_search import create_search_api, SearchAPI
 from opendeepsearch.context_building.process_sources_pro import SourceProcessor
 from opendeepsearch.context_building.build_context import build_context
-from litellm import completion
+from litellm import completion, utils
 from dotenv import load_dotenv
 import os
 from opendeepsearch.prompts import SEARCH_SYSTEM_PROMPT
@@ -13,9 +13,12 @@ load_dotenv()
 class OpenDeepSearchAgent:
     def __init__(
         self,
-        model: str, #We use LiteLLM to call the model
+        model: Optional[str] = None, #We use LiteLLM to call the model
         system_prompt: Optional[str] = SEARCH_SYSTEM_PROMPT,
+        search_provider: Literal["serper", "searxng"] = "serper",
         serper_api_key: Optional[str] = None,
+        searxng_instance_url: Optional[str] = None,
+        searxng_api_key: Optional[str] = None,
         source_processor_config: Optional[Dict[str, Any]] = None,
         temperature: float = 0.2, # Slight variation while maintaining reliability
         top_p: float = 0.3, # Focus on high-confidence tokens
@@ -24,15 +27,19 @@ class OpenDeepSearchAgent:
         """
         Initialize an OpenDeepSearch agent that combines web search, content processing, and LLM capabilities.
 
-        This agent performs web searches using SerperAPI, processes the search results to extract relevant
-        information, and uses a language model to generate responses based on the gathered context.
+        This agent performs web searches using either SerperAPI or SearXNG, processes the search results to extract
+        relevant information, and uses a language model to generate responses based on the gathered context.
 
         Args:
             model (str): The identifier for the language model to use (compatible with LiteLLM).
             system_prompt (str, optional): Custom system prompt for the language model. If not provided,
                 uses a default prompt that instructs the model to answer based on context.
-            serper_api_key (str, optional): API key for SerperAPI. If not provided, uses default
-                authentication method.
+            search_provider (str, optional): The search provider to use ('serper' or 'searxng'). Default is 'serper'.
+            serper_api_key (str, optional): API key for SerperAPI. Required if search_provider is 'serper' and
+                SERPER_API_KEY environment variable is not set.
+            searxng_instance_url (str, optional): URL of the SearXNG instance. Required if search_provider is 'searxng'
+                and SEARXNG_INSTANCE_URL environment variable is not set.
+            searxng_api_key (str, optional): API key for SearXNG instance. Optional even if search_provider is 'searxng'.
             source_processor_config (Dict[str, Any], optional): Configuration dictionary for the
                 SourceProcessor. Supports the following options:
                 - strategies (List[str]): Content extraction strategies to use
@@ -45,23 +52,33 @@ class OpenDeepSearchAgent:
             reranker (str, optional): Identifier for the reranker to use. If not provided,
                 uses the default reranker from SourceProcessor.
         """
-        # Initialize SerperAPI with optional API key
-        self.serp_search = SerperAPI(api_key=serper_api_key) if serper_api_key else SerperAPI()
-        
+        # Initialize search API based on provider
+        self.serp_search = create_search_api(
+            search_provider=search_provider,
+            serper_api_key=serper_api_key,
+            searxng_instance_url=searxng_instance_url,
+            searxng_api_key=searxng_api_key
+        )
+
         # Update source_processor_config with reranker if provided
         if source_processor_config is None:
             source_processor_config = {}
         if reranker:
             source_processor_config['reranker'] = reranker
-        
+
         # Initialize SourceProcessor with provided config or defaults
         self.source_processor = SourceProcessor(**source_processor_config)
-        
+
         # Initialize LLM settings
-        self.model = model
+        self.model = model if model is not None else os.getenv("LITELLM_SEARCH_MODEL_ID", os.getenv("LITELLM_MODEL_ID", "openrouter/google/gemini-2.0-flash-001"))
         self.temperature = temperature
         self.top_p = top_p
         self.system_prompt = system_prompt
+
+        # Configure LiteLLM with OpenAI base URL if provided
+        openai_base_url = os.environ.get("OPENAI_BASE_URL")
+        if openai_base_url:
+            utils.set_provider_config("openai", {"base_url": openai_base_url})
 
     async def search_and_build_context(
         self,
@@ -88,15 +105,15 @@ class OpenDeepSearchAgent:
         """
         # Get sources from SERP
         sources = self.serp_search.get_sources(query)
-        
+
         # Process sources
         processed_sources = await self.source_processor.process_sources(
             sources,
-            max_sources,    
+            max_sources,
             query,
             pro_mode
         )
-        
+
         # Build and return context
         return build_context(processed_sources)
 
@@ -136,7 +153,7 @@ class OpenDeepSearchAgent:
             temperature=self.temperature,
             top_p=self.top_p
         )
-        
+
         return response.choices[0].message.content
 
     def ask_sync(
@@ -158,5 +175,5 @@ class OpenDeepSearchAgent:
             # If there's no event loop, create a new one
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
-        
+
         return loop.run_until_complete(self.ask(query, max_sources, pro_mode))
